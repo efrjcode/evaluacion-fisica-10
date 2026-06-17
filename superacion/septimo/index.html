@@ -1,1 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación de Nivelación y Superación — Números Enteros — 7°</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --verde: #2E7D32;
+    --verde-oscuro: #1B5E20;
+    --verde-claro: #E8F5E9;
+    --crema: #FAF9F4;
+    --tinta: #1F2A24;
+    --tinta-suave: #51635A;
+    --azul: #1D4E89;
+    --azul-claro: #E7EEF7;
+    --ambar: #B45309;
+    --ambar-claro: #FBEFE2;
+    --linea: #DCE3DA;
+    --blanco: #FFFFFF;
+    --radio: 14px;
+    --sombra: 0 1px 2px rgba(31,42,36,0.04), 0 8px 24px rgba(31,42,36,0.06);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background: var(--crema);
+    background-image: radial-gradient(circle at 12% 8%, rgba(46,125,50,0.05), transparent 40%);
+    color: var(--tinta);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    display:flex;
+    justify-content:center;
+    padding: 28px 16px 60px;
+  }
+
+  .tarjeta{
+    width:100%;
+    max-width:640px;
+    background: var(--blanco);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+    border: 1px solid var(--linea);
+    overflow:hidden;
+  }
+
+  /* --- Encabezado con motivo de cordillera, referencia al páramo/Parque Entre Nubes --- */
+  .encabezado{
+    background: linear-gradient(180deg, var(--verde-claro), var(--blanco));
+    padding: 22px 28px 0;
+    border-bottom: 1px solid var(--linea);
+  }
+  .encabezado .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--verde-oscuro);
+    margin: 0 0 6px;
+  }
+  .encabezado h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 22px;
+    line-height:1.25;
+    margin: 0 0 4px;
+    color: var(--tinta);
+  }
+  .encabezado p.sub{
+    margin: 0 0 14px;
+    font-size: 13.5px;
+    color: var(--tinta-suave);
+  }
+  .cordillera{
+    display:block;
+    width:100%;
+    height:30px;
+  }
+
+  .contenido{ padding: 26px 28px 28px; }
+
+  /* --- Pantallas --- */
+  .pantalla{ display:none; }
+  .pantalla.activa{ display:block; }
+
+  /* --- Inicio --- */
+  .campo label{
+    display:block;
+    font-size: 13px;
+    font-weight:500;
+    color: var(--tinta-suave);
+    margin-bottom:6px;
+  }
+  .campo input[type="text"]{
+    width:100%;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family:'IBM Plex Sans', sans-serif;
+    border: 1.5px solid var(--linea);
+    border-radius: 10px;
+    background: var(--crema);
+    color: var(--tinta);
+  }
+  .campo input[type="text"]:focus{
+    outline: 2.5px solid var(--verde);
+    outline-offset: 1px;
+    border-color: var(--verde);
+  }
+  .instrucciones{
+    background: var(--verde-claro);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--tinta);
+    line-height:1.55;
+    margin: 18px 0 22px;
+  }
+  .instrucciones strong{ color: var(--verde-oscuro); }
+
+  /* --- Botones --- */
+  .boton{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding: 13px 18px;
+    font-size: 15px;
+    font-weight:600;
+    font-family:'IBM Plex Sans', sans-serif;
+    border-radius: 10px;
+    border: none;
+    cursor:pointer;
+    background: var(--verde);
+    color: var(--blanco);
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .boton:hover{ background: var(--verde-oscuro); }
+  .boton:active{ transform: translateY(1px); }
+  .boton:disabled{
+    background: #C8CFC9;
+    cursor:not-allowed;
+  }
+  .boton:focus-visible{ outline: 2.5px solid var(--tinta); outline-offset: 2px; }
+
+  /* --- Progreso --- */
+  .progreso-fila{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 16px;
+  }
+  .progreso-texto{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--tinta-suave);
+  }
+  .cronometro{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--tinta-suave);
+  }
+  .progreso-barra{
+    display:flex; gap:4px;
+    margin-bottom: 22px;
+  }
+  .progreso-seg{
+    flex:1; height:5px; border-radius:3px;
+    background: var(--linea);
+  }
+  .progreso-seg.hecho{ background: var(--verde); }
+  .progreso-seg.actual{ background: var(--tinta); }
+
+  /* --- Insignia de nivel --- */
+  .insignia{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight:500;
+    letter-spacing:0.04em; text-transform:uppercase;
+    padding: 5px 10px; border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .insignia.basico{ background: var(--verde-claro); color: var(--verde-oscuro); }
+  .insignia.intermedio{ background: var(--azul-claro); color: var(--azul); }
+  .insignia.avanzado{ background: var(--ambar-claro); color: var(--ambar); }
+  .insignia svg{ width:11px; height:11px; }
+
+  .enunciado{
+    font-size: 16.5px;
+    line-height:1.5;
+    color: var(--tinta);
+    margin: 0 0 20px;
+  }
+  .enunciado .expresion{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 19px;
+    font-weight:500;
+  }
+
+  .opciones{ display:flex; flex-direction:column; gap:10px; margin-bottom: 22px; }
+  .opcion{
+    text-align:left;
+    width:100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--linea);
+    background: var(--blanco);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 15px;
+    color: var(--tinta);
+    cursor:pointer;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .opcion:hover{ border-color: var(--verde); }
+  .opcion.seleccionada{
+    border-color: var(--verde);
+    background: var(--verde-claro);
+    font-weight:600;
+  }
+  .opcion:focus-visible{ outline: 2.5px solid var(--verde); outline-offset:1px; }
+
+  /* --- Final --- */
+  .resultado-num{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 44px;
+    color: var(--verde-oscuro);
+    margin: 4px 0 2px;
+  }
+  .resultado-fila{
+    display:flex; justify-content:space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--linea);
+    font-size: 14px;
+  }
+  .resultado-fila:last-child{ border-bottom:none; }
+  .resultado-fila .etiqueta{ color: var(--tinta-suave); }
+  .resultado-fila .valor{ font-family:'IBM Plex Mono', monospace; font-weight:500; }
+  .nota-estado{
+    font-size: 13.5px;
+    color: var(--tinta-suave);
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--crema);
+  }
+  .nota-estado.error{ background: var(--ambar-claro); color: #7C4A12; }
+
+  @media (prefers-reduced-motion: reduce){
+    .boton, .opcion{ transition:none; }
+  }
+
+  @media (max-width: 480px){
+    .encabezado, .contenido{ padding-left:18px; padding-right:18px; }
+    .resultado-num{ font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Formulario oculto estático: necesario para que Netlify registre los campos en el build -->
+<form name="grado7-nivelacion-enteros" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="grado7-nivelacion-enteros" />
+  <input name="bot-field" />
+  <input type="text" name="nombre" />
+  <input type="text" name="aciertos" />
+  <input type="text" name="nota" />
+  <input type="text" name="tiempo" />
+</form>
+
+<div class="tarjeta">
+  <div class="encabezado">
+    <p class="eyebrow">Colegio San Isidro Sur Oriental IED — Séptimo grado</p>
+    <h1>Evaluación de Nivelación y Superación</h1>
+    <p class="sub">Operaciones con números enteros — Campo de Pensamiento Matemático</p>
+    <svg class="cordillera" viewBox="0 0 640 30" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="0,28 60,10 110,24 170,4 230,22 290,12 350,26 410,8 470,22 540,6 600,20 640,14"
+        fill="none" stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+    </svg>
+  </div>
+
+  <div class="contenido">
+
+    <!-- ===== PANTALLA 1: INICIO ===== -->
+    <section id="pantalla-inicio" class="pantalla activa">
+      <div class="campo">
+        <label for="input-nombre">Nombre completo del estudiante</label>
+        <input type="text" id="input-nombre" placeholder="Escribe tu nombre y apellido" autocomplete="off">
+      </div>
+
+      <div class="instrucciones">
+        <strong>Antes de comenzar:</strong> esta evaluación tiene 10 preguntas de opción múltiple, organizadas en tres niveles (básico, intermedio y avanzado). No hay límite de tiempo, así que puedes leer cada pregunta con calma. Una vez avances a la siguiente pregunta no podrás regresar a la anterior. Al finalizar, tu resultado se registra automáticamente.
+      </div>
+
+      <button class="boton" id="btn-comenzar">Comenzar evaluación</button>
+      <p id="error-nombre" style="color:#B3261E; font-size:13px; margin-top:10px; display:none;">Escribe tu nombre antes de comenzar.</p>
+    </section>
+
+    <!-- ===== PANTALLA 2: PREGUNTA ===== -->
+    <section id="pantalla-pregunta" class="pantalla">
+      <div class="progreso-fila">
+        <span class="progreso-texto" id="texto-progreso">Pregunta 1 de 10</span>
+        <span class="cronometro" id="texto-cronometro">00:00</span>
+      </div>
+      <div class="progreso-barra" id="barra-progreso"></div>
+
+      <span class="insignia" id="insignia-nivel"></span>
+
+      <p class="enunciado" id="texto-enunciado"></p>
+
+      <div class="opciones" id="contenedor-opciones"></div>
+
+      <button class="boton" id="btn-siguiente" disabled>Siguiente</button>
+    </section>
+
+    <!-- ===== PANTALLA 3: FINAL ===== -->
+    <section id="pantalla-final" class="pantalla">
+      <p class="eyebrow" style="color:var(--tinta-suave);">Evaluación completada</p>
+      <p style="margin:2px 0 0; font-size:14.5px; color:var(--tinta-suave);" id="texto-saludo-final"></p>
+      <div class="resultado-num" id="texto-nota-final"></div>
+      <p style="font-size:13px; color:var(--tinta-suave); margin:0 0 18px;">Nota sobre 5.0</p>
+
+      <div class="resultado-fila">
+        <span class="etiqueta">Respuestas correctas</span>
+        <span class="valor" id="valor-aciertos"></span>
+      </div>
+      <div class="resultado-fila">
+        <span class="etiqueta">Tiempo de evaluación</span>
+        <span class="valor" id="valor-tiempo"></span>
+      </div>
+
+      <div class="nota-estado" id="estado-envio">Registrando tu resultado…</div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ---------- Utilidades ----------
+  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function pickDistractors(correct, candidates, count){
+    count = count || 3;
+    var unique = [];
+    for (var i = 0; i < candidates.length; i++){
+      var c = candidates[i];
+      if (c !== correct && unique.indexOf(c) === -1) unique.push(c);
+      if (unique.length === count) break;
+    }
+    var attempts = 0;
+    while (unique.length < count && attempts < 80){
+      var nudge = correct + (Math.floor(Math.random() * 10) + 1) * (Math.random() < 0.5 ? 1 : -1);
+      if (nudge !== correct && unique.indexOf(nudge) === -1) unique.push(nudge);
+      attempts++;
+    }
+    return unique;
+  }
+
+  function fmtTerm(n){ return n < 0 ? '(' + n + ')' : '' + n; }
+
+  function fmtMoney(n){
+    var sign = n < 0 ? '-' : '';
+    var abs = Math.abs(n).toString();
+    var withDots = '';
+    for (var i = 0; i < abs.length; i++){
+      if (i > 0 && (abs.length - i) % 3 === 0) withDots += '.';
+      withDots += abs[i];
+    }
+    return sign + '$' + withDots;
+  }
+
+  function shuffle(arr){
+    for (var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  // ---------- Generadores de preguntas (valores dinámicos) ----------
+  var generadores = {
+    suma: function(){
+      var neg = -randInt(1, 15);
+      var pos = randInt(1, 15);
+      var a, b;
+      if (Math.random() < 0.5){ a = neg; b = pos; } else { a = pos; b = neg; }
+      var correct = a + b;
+      var candidates = [-(correct), Math.abs(neg) + Math.abs(pos), a - b];
+      return {
+        nivel: 'basico',
+        enunciado: fmtTerm(a) + ' + ' + fmtTerm(b) + ' =',
+        esExpresion: true,
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    resta: function(){
+      var a = randInt(-15, 15); while (a === 0) a = randInt(-15, 15);
+      var b = randInt(-15, 15); while (b === 0 || b === a) b = randInt(-15, 15);
+      var correct = a - b;
+      var candidates = [a + b, b - a, Math.abs(a) - Math.abs(b), a - Math.abs(b)];
+      return {
+        nivel: 'basico',
+        enunciado: fmtTerm(a) + ' - ' + fmtTerm(b) + ' =',
+        esExpresion: true,
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    multiplicacion: function(){
+      var a = randInt(-12, 12); while (a === 0) a = randInt(-12, 12);
+      var b = randInt(-12, 12); while (b === 0) b = randInt(-12, 12);
+      var correct = a * b;
+      var candidates = [-(correct), a + b, Math.abs(a) * Math.abs(b)];
+      return {
+        nivel: 'basico',
+        enunciado: fmtTerm(a) + ' × ' + fmtTerm(b) + ' =',
+        esExpresion: true,
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    division: function(){
+      var b = randInt(2, 9); if (Math.random() < 0.5) b = -b;
+      var q = randInt(1, 9); if (Math.random() < 0.5) q = -q;
+      var a = b * q;
+      var correct = q;
+      var candidates = [-(q), b, q + 1, q - 1];
+      return {
+        nivel: 'basico',
+        enunciado: fmtTerm(a) + ' ÷ ' + fmtTerm(b) + ' =',
+        esExpresion: true,
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    paramo_simple: function(){
+      var t1 = randInt(-8, -1);
+      var delta = randInt(3, 9);
+      var correct = t1 - delta;
+      var candidates = [t1 + delta, -(t1 - delta), delta - t1, Math.abs(t1) - delta];
+      return {
+        nivel: 'intermedio',
+        enunciado: 'En el páramo de Sumapaz, a las 4:00 a.m. el termómetro registró ' + t1 + '°C. Durante la madrugada la temperatura descendió ' + delta + '°C más. ¿Cuál fue la temperatura final?',
+        unidad: '°C',
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    sitp_saldo: function(){
+      var debt = randInt(5, 25) * 100;
+      var pay = randInt(10, 40) * 100;
+      var correct = -debt + pay;
+      var candidates = [debt + pay, -(-debt + pay), debt - pay, -debt - pay];
+      return {
+        nivel: 'intermedio',
+        enunciado: 'La tarjeta SITP de un estudiante quedó con un saldo de ' + fmtMoney(-debt) + ' luego de un viaje. Si recarga ' + fmtMoney(pay) + ', ¿cuál es el nuevo saldo de la tarjeta?',
+        esDinero: true,
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    parqueadero: function(){
+      var n = randInt(2, 4);
+      var h = randInt(3, 5);
+      var sube = randInt(h + 1, n * h + 4);
+      var nivelBajo = -(n * h);
+      var correct = nivelBajo + sube;
+      var candidates = [Math.abs(nivelBajo) + sube, nivelBajo - sube, -h + sube, -(correct)];
+      return {
+        nivel: 'intermedio',
+        enunciado: 'Un parqueadero subterráneo tiene ' + n + ' niveles, cada uno ' + h + ' metros por debajo del nivel de la calle. Una persona está en el nivel más bajo y sube ' + sube + ' metros. ¿A qué altura queda respecto al nivel de la calle (0 m)?',
+        unidad: ' m',
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    paramo_dia: function(){
+      var t0 = randInt(-5, 2);
+      var d1 = randInt(2, 7);
+      var d2 = randInt(2, 7);
+      var d3 = randInt(1, 5);
+      var correct = t0 - d1 + d2 - d3;
+      var candidates = [t0 - d1 - d2 - d3, t0 + d1 + d2 - d3, t0 - d1 + d2 + d3, t0 + d1 - d2 + d3];
+      return {
+        nivel: 'avanzado',
+        enunciado: 'En el páramo de Sumapaz se registró esta variación de temperatura en un día: comenzó en ' + t0 + '°C; en la mañana descendió ' + d1 + '°C; al mediodía ascendió ' + d2 + '°C; y en la noche volvió a descender ' + d3 + '°C adicionales. ¿Cuál fue la temperatura final?',
+        unidad: '°C',
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    caja_comerciante: function(){
+      var s0 = randInt(5, 30) * 1000;
+      var v1 = randInt(5, 20) * 1000;
+      var p1 = randInt(3, 15) * 1000;
+      var v2 = randInt(3, 15) * 1000;
+      var p2 = randInt(2, 10) * 1000;
+      var correct = s0 + v1 - p1 + v2 - p2;
+      var candidates = [s0 + v1 + p1 + v2 + p2, s0 + v1 - p1 - v2 - p2, s0 - v1 + p1 - v2 + p2, s0 + v1 - p1 + v2 + p2];
+      return {
+        nivel: 'avanzado',
+        enunciado: 'Un comerciante de un barrio de Bogotá registró estos movimientos en su caja durante un día: saldo inicial ' + fmtMoney(s0) + '; vendió mercancía por ' + fmtMoney(v1) + '; pagó una deuda de ' + fmtMoney(p1) + '; recibió un pago pendiente de ' + fmtMoney(v2) + '; y tuvo un gasto inesperado de ' + fmtMoney(p2) + '. ¿Cuál fue el saldo final de la caja?',
+        esDinero: true,
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    },
+    parque_entrenubes: function(){
+      var s1 = randInt(15, 40);
+      var b1 = randInt(10, 30);
+      var s2 = randInt(10, 35);
+      var b2 = randInt(15, 35);
+      var correct = s1 - b1 + s2 - b2;
+      var candidates = [s1 + b1 + s2 + b2, s1 - b1 - s2 + b2, s1 - b1 + s2 + b2, -(s1) - b1 - s2 - b2];
+      return {
+        nivel: 'avanzado',
+        enunciado: 'Un grupo de estudiantes inicia una caminata en el Parque Entre Nubes desde el punto de encuentro (altura de referencia 0 m). Suben ' + s1 + ' m, luego descienden ' + b1 + ' m, después suben ' + s2 + ' m adicionales y finalmente descienden ' + b2 + ' m hasta el mirador. ¿A qué altura respecto al punto de encuentro se encuentra el mirador?',
+        unidad: ' m',
+        correcta: correct,
+        distractores: pickDistractors(correct, candidates)
+      };
+    }
+  };
+
+  var ordenPreguntas = ['suma','resta','multiplicacion','division','paramo_simple','sitp_saldo','parqueadero','paramo_dia','caja_comerciante','parque_entrenubes'];
+  var TOTAL = ordenPreguntas.length;
+
+  var insignias = {
+    basico:     { etiqueta: 'Nivel básico',     clase: 'basico' },
+    intermedio: { etiqueta: 'Nivel intermedio', clase: 'intermedio' },
+    avanzado:   { etiqueta: 'Nivel avanzado',   clase: 'avanzado' }
+  };
+
+  // ---------- Estado ----------
+  var nombreEstudiante = '';
+  var indiceActual = 0;
+  var aciertos = 0;
+  var preguntasGeneradas = [];   // se genera una vez por pregunta, en orden
+  var opcionesActuales = [];
+  var seleccionIndice = null;
+  var inicioMs = null;
+  var cronometroInterval = null;
+
+  // ---------- Elementos ----------
+  var pInicio = document.getElementById('pantalla-inicio');
+  var pPregunta = document.getElementById('pantalla-pregunta');
+  var pFinal = document.getElementById('pantalla-final');
+
+  var inputNombre = document.getElementById('input-nombre');
+  var errorNombre = document.getElementById('error-nombre');
+  var btnComenzar = document.getElementById('btn-comenzar');
+
+  var textoProgreso = document.getElementById('texto-progreso');
+  var textoCronometro = document.getElementById('texto-cronometro');
+  var barraProgreso = document.getElementById('barra-progreso');
+  var insigniaNivel = document.getElementById('insignia-nivel');
+  var textoEnunciado = document.getElementById('texto-enunciado');
+  var contenedorOpciones = document.getElementById('contenedor-opciones');
+  var btnSiguiente = document.getElementById('btn-siguiente');
+
+  var textoSaludoFinal = document.getElementById('texto-saludo-final');
+  var textoNotaFinal = document.getElementById('texto-nota-final');
+  var valorAciertos = document.getElementById('valor-aciertos');
+  var valorTiempo = document.getElementById('valor-tiempo');
+  var estadoEnvio = document.getElementById('estado-envio');
+
+  function mostrarPantalla(p){
+    [pInicio, pPregunta, pFinal].forEach(function(s){ s.classList.remove('activa'); });
+    p.classList.add('activa');
+  }
+
+  // ---------- Barra de progreso ----------
+  function construirBarraProgreso(){
+    barraProgreso.innerHTML = '';
+    for (var i = 0; i < TOTAL; i++){
+      var seg = document.createElement('div');
+      seg.className = 'progreso-seg';
+      barraProgreso.appendChild(seg);
+    }
+  }
+  function actualizarBarraProgreso(){
+    var segs = barraProgreso.children;
+    for (var i = 0; i < segs.length; i++){
+      segs[i].classList.remove('hecho', 'actual');
+      if (i < indiceActual) segs[i].classList.add('hecho');
+      else if (i === indiceActual) segs[i].classList.add('actual');
+    }
+  }
+
+  // ---------- Cronómetro ----------
+  function fmtTiempo(ms){
+    var totalSeg = Math.floor(ms / 1000);
+    var min = Math.floor(totalSeg / 60);
+    var seg = totalSeg % 60;
+    return (min < 10 ? '0' : '') + min + ':' + (seg < 10 ? '0' : '') + seg;
+  }
+  function iniciarCronometro(){
+    inicioMs = Date.now();
+    cronometroInterval = setInterval(function(){
+      textoCronometro.textContent = fmtTiempo(Date.now() - inicioMs);
+    }, 1000);
+  }
+  function detenerCronometro(){
+    clearInterval(cronometroInterval);
+    return Date.now() - inicioMs;
+  }
+
+  // ---------- Render de preguntas ----------
+  function renderPregunta(){
+    var nombreGen = ordenPreguntas[indiceActual];
+    if (!preguntasGeneradas[indiceActual]){
+      preguntasGeneradas[indiceActual] = generadores[nombreGen]();
+    }
+    var q = preguntasGeneradas[indiceActual];
+
+    textoProgreso.textContent = 'Pregunta ' + (indiceActual + 1) + ' de ' + TOTAL;
+    actualizarBarraProgreso();
+
+    var ins = insignias[q.nivel];
+    insigniaNivel.className = 'insignia ' + ins.clase;
+    insigniaNivel.textContent = ins.etiqueta;
+
+    if (q.esExpresion){
+      textoEnunciado.innerHTML = '<span class="expresion">' + q.enunciado + '</span>';
+    } else {
+      textoEnunciado.textContent = q.enunciado;
+    }
+
+    var valores = [q.correcta].concat(q.distractores);
+    var indices = [0, 1, 2, 3];
+    shuffle(indices);
+    opcionesActuales = indices.map(function(i){ return { valor: valores[i], esCorrecta: i === 0 }; });
+
+    function formatearValor(v){
+      if (q.esDinero) return fmtMoney(v);
+      return v + (q.unidad || '');
+    }
+
+    contenedorOpciones.innerHTML = '';
+    opcionesActuales.forEach(function(op, idx){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'opcion';
+      btn.textContent = formatearValor(op.valor);
+      btn.addEventListener('click', function(){ seleccionarOpcion(idx); });
+      contenedorOpciones.appendChild(btn);
+    });
+
+    seleccionIndice = null;
+    btnSiguiente.disabled = true;
+    btnSiguiente.textContent = (indiceActual === TOTAL - 1) ? 'Finalizar evaluación' : 'Siguiente';
+  }
+
+  function seleccionarOpcion(idx){
+    seleccionIndice = idx;
+    var botones = contenedorOpciones.children;
+    for (var i = 0; i < botones.length; i++){
+      botones[i].classList.toggle('seleccionada', i === idx);
+    }
+    btnSiguiente.disabled = false;
+  }
+
+  // ---------- Flujo ----------
+  btnComenzar.addEventListener('click', function(){
+    var nombre = inputNombre.value.trim();
+    if (!nombre){
+      errorNombre.style.display = 'block';
+      inputNombre.focus();
+      return;
+    }
+    errorNombre.style.display = 'none';
+    nombreEstudiante = nombre;
+    construirBarraProgreso();
+    mostrarPantalla(pPregunta);
+    iniciarCronometro();
+    renderPregunta();
+  });
+
+  btnSiguiente.addEventListener('click', function(){
+    if (seleccionIndice === null) return;
+    if (opcionesActuales[seleccionIndice].esCorrecta) aciertos++;
+
+    if (indiceActual < TOTAL - 1){
+      indiceActual++;
+      renderPregunta();
+    } else {
+      finalizarEvaluacion();
+    }
+  });
+
+  function finalizarEvaluacion(){
+    var ms = detenerCronometro();
+    var tiempoTexto = fmtTiempo(ms);
+    var nota = ((aciertos / TOTAL) * 5).toFixed(1);
+
+    indiceActual = TOTAL; // marca la barra como completa
+    mostrarPantalla(pFinal);
+
+    textoSaludoFinal.textContent = nombreEstudiante + ', este fue tu resultado:';
+    textoNotaFinal.textContent = nota;
+    valorAciertos.textContent = aciertos + ' de ' + TOTAL;
+    valorTiempo.textContent = tiempoTexto;
+
+    enviarResultado({ nombre: nombreEstudiante, aciertos: aciertos, nota: nota, tiempo: tiempoTexto });
+  }
+
+  function enviarResultado(data){
+    var body = 'form-name=' + encodeURIComponent('grado7-nivelacion-enteros') +
+      '&bot-field=' +
+      '&nombre=' + encodeURIComponent(data.nombre) +
+      '&aciertos=' + encodeURIComponent(data.aciertos) +
+      '&nota=' + encodeURIComponent(data.nota) +
+      '&tiempo=' + encodeURIComponent(data.tiempo);
+
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
+    }).then(function(res){
+      if (res.ok){
+        estadoEnvio.textContent = 'Tu resultado quedó registrado. Ya puedes cerrar esta ventana.';
+      } else {
+        throw new Error('respuesta no exitosa');
+      }
+    }).catch(function(){
+      estadoEnvio.className = 'nota-estado error';
+      estadoEnvio.textContent = 'No se pudo registrar automáticamente. Toma una captura de esta pantalla y muéstrasela a tu profesor.';
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
 
