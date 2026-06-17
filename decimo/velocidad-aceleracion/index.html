@@ -1,1 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación — Velocidad y Aceleración · Grado 10°</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
 
+:root {
+  --verde:       #1B5E20;
+  --verde-medio: #2E7D32;
+  --verde-claro: #A5D6A7;
+  --verde-pale:  #E8F5E9;
+  --gris-oscuro: #1A1A1A;
+  --gris-medio:  #555;
+  --gris-claro:  #F5F5F5;
+  --blanco:      #FFFFFF;
+  --acento:      #00897B;
+  --error:       #B71C1C;
+  --radio: 4px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  background: #F0F4F1;
+  color: var(--gris-oscuro);
+  min-height: 100vh;
+}
+.shell { max-width: 780px; margin: 0 auto; padding: 0 16px 60px; }
+
+.header-inst {
+  background: var(--verde);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-inst .inst-name { font-weight: 700; font-size: 13px; letter-spacing: .04em; }
+.header-inst .inst-text { font-size: 12px; line-height: 1.5; opacity: .9; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── Inicio ── */
+.intro-card {
+  background: var(--blanco);
+  border-left: 5px solid var(--verde);
+  padding: 36px 40px;
+  margin-top: 32px;
+}
+.intro-card h1 {
+  font-size: 22px; font-weight: 700;
+  color: var(--verde); margin-bottom: 6px; line-height: 1.3;
+}
+.intro-card .subtitulo {
+  font-size: 13px; color: var(--gris-medio);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 28px; letter-spacing: .03em;
+}
+.enunciado {
+  background: var(--verde-pale);
+  border-left: 4px solid var(--verde-claro);
+  padding: 20px 24px; margin-bottom: 28px;
+  font-size: 14px; line-height: 1.8;
+}
+.enunciado strong { color: var(--verde-medio); }
+.enunciado em { font-style: italic; color: #2E7D32; }
+
+.form-row { margin-bottom: 16px; }
+.form-row label {
+  display: block; font-size: 12px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--gris-medio); margin-bottom: 6px;
+}
+.form-row input, .form-row select {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid #CCC; border-radius: var(--radio);
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 15px;
+  background: var(--blanco); transition: border-color .2s;
+}
+.form-row input:focus, .form-row select:focus {
+  outline: none; border-color: var(--verde-medio);
+}
+.aviso-tiempo {
+  font-size: 13px; color: var(--gris-medio); margin-bottom: 24px;
+  padding: 10px 14px; border: 1px dashed #AAA; border-radius: var(--radio);
+}
+.btn {
+  display: inline-block; padding: 12px 28px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: .04em;
+  border: none; border-radius: var(--radio);
+  cursor: pointer; transition: background .2s, transform .1s;
+}
+.btn-primary { background: var(--verde); color: #fff; }
+.btn-primary:hover { background: var(--verde-medio); }
+.btn-primary:active { transform: scale(.98); }
+.btn-primary:disabled { background: #AAA; cursor: not-allowed; }
+
+/* ── Top bar ── */
+.top-bar {
+  background: var(--blanco); border-bottom: 1px solid #DDD;
+  padding: 10px 0; position: sticky; top: 0; z-index: 10; margin-bottom: 24px;
+}
+.top-bar-inner {
+  max-width: 780px; margin: 0 auto; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.progreso-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--gris-medio); white-space: nowrap; }
+.progreso-bar { flex: 1; height: 6px; background: #DDD; border-radius: 3px; overflow: hidden; }
+.progreso-fill { height: 100%; background: var(--verde); border-radius: 3px; transition: width .4s ease; }
+.timer { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: var(--verde); white-space: nowrap; }
+.timer.urgente { color: var(--error); }
+
+/* ── Pregunta ── */
+.pregunta-card { background: var(--blanco); padding: 32px 36px; margin-bottom: 20px; }
+.pregunta-nivel { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--acento); margin-bottom: 8px; }
+.pregunta-numero { font-size: 13px; color: var(--gris-medio); margin-bottom: 16px; }
+.pregunta-texto { font-size: 15px; line-height: 1.8; margin-bottom: 20px; }
+.pregunta-texto em { font-style: italic; color: var(--verde-medio); }
+
+.tabla-datos { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; font-family: 'IBM Plex Mono', monospace; }
+.tabla-datos th { background: var(--verde); color: #fff; padding: 8px 12px; text-align: center; font-weight: 600; }
+.tabla-datos td { padding: 7px 12px; text-align: center; border-bottom: 1px solid #EEE; }
+.tabla-datos tr:nth-child(even) td { background: var(--verde-pale); }
+.tabla-datos .separador td { border-top: 2px solid var(--verde-claro); background: #F9FBF9; font-weight: 600; }
+
+.grafica-wrap { margin: 16px 0; border: 1px solid #DDD; border-radius: var(--radio); overflow: hidden; background: #FAFAFA; position: relative; }
+.grafica-wrap canvas { display: block; width: 100%; }
+.grafica-tooltip { position: absolute; background: rgba(0,0,0,.78); color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 4px 8px; border-radius: 3px; pointer-events: none; display: none; white-space: nowrap; }
+.nota-grafica { font-size: 12px; color: var(--gris-medio); text-align: center; margin-top: 4px; font-style: italic; }
+
+.opciones { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.opcion {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; border: 1.5px solid #DDD; border-radius: var(--radio);
+  cursor: pointer; transition: border-color .15s, background .15s;
+  font-size: 14px; line-height: 1.55; user-select: none;
+}
+.opcion:hover { border-color: var(--verde-claro); background: var(--verde-pale); }
+.opcion.seleccionada { border-color: var(--verde); background: var(--verde-pale); }
+.opcion-letra { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px; color: var(--verde-medio); min-width: 20px; padding-top: 1px; }
+
+.nav-pregunta { display: flex; justify-content: flex-end; gap: 12px; }
+
+/* ── Resultados ── */
+.resultado-card { background: var(--blanco); padding: 40px; margin-top: 32px; text-align: center; }
+.resultado-puntaje { font-size: 64px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; color: var(--verde); line-height: 1; margin-bottom: 8px; }
+.resultado-label { font-size: 14px; color: var(--gris-medio); margin-bottom: 32px; letter-spacing: .04em; }
+.resultado-detalle { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 32px; }
+.det-item { border: 1.5px solid #DDD; border-radius: var(--radio); padding: 14px 8px; font-size: 12px; }
+.det-item .det-num { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; display: block; margin-bottom: 4px; }
+.det-item.correcta { border-color: var(--verde); color: var(--verde); }
+.det-item.incorrecta { border-color: var(--error); color: var(--error); }
+.det-item .det-nivel { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .05em; opacity: .7; }
+.enviado-msg { font-size: 13px; color: var(--gris-medio); padding: 12px; border: 1px dashed #AAA; border-radius: var(--radio); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header-inst">
+  <div>
+    <div class="inst-name">Colegio San Isidro Sur Oriental IED</div>
+    <div class="inst-text">Campo: Ciencia y Tecnología · Grado 10° · Periodo II · 2026 · Docente: Ervin Rueda</div>
+  </div>
+</div>
+
+<!-- INICIO -->
+<div id="screen-inicio" class="screen active">
+  <div class="shell">
+    <div class="intro-card">
+      <h1>Evaluación: Velocidad y Aceleración</h1>
+      <div class="subtitulo">Biomecánica del movimiento animal · 5 preguntas · 5 minutos</div>
+      <div class="enunciado">
+        <p>En la Estación de Seguimiento Faunístico N.° 7, el equipo del Dr. Merino ha identificado un nuevo organismo: <em>Rapidus incertus</em>. A diferencia de los tres especímenes estudiados anteriormente, este individuo presenta un comportamiento cinemático más complejo.</p><br>
+        <p>Los investigadores saben que el análisis de las huellas no solo describe el movimiento: también permite inferir características biológicas. La <strong>velocidad media</strong> está relacionada con el metabolismo y la masa corporal; la <strong>aceleración</strong>, con el tipo de sistema muscular y la termorregulación. Un animal ectotermo suele mostrar aceleraciones más variables, mientras que un endotermo tiende a patrones más regulares.</p><br>
+        <p>Las siguientes preguntas te ayudarán a caracterizar el movimiento de <em>Rapidus incertus</em> y de un segundo organismo hallado en la misma zona.</p>
+      </div>
+      <div class="form-row">
+        <label for="inp-nombre">Nombre completo</label>
+        <input type="text" id="inp-nombre" placeholder="Escribe tu nombre y apellidos" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label for="inp-curso">Curso</label>
+        <select id="inp-curso">
+          <option value="">— Selecciona tu curso —</option>
+          <option>1001</option><option>1002</option><option>1003</option>
+        </select>
+      </div>
+      <div class="aviso-tiempo">
+        ⏱ El cronómetro de <strong>5 minutos</strong> comenzará al presionar <em>Iniciar evaluación</em>. Las preguntas se responden una a la vez. No es posible regresar a una pregunta anterior.
+      </div>
+      <button class="btn btn-primary" id="btn-iniciar" disabled onclick="iniciarEvaluacion()">Iniciar evaluación</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div id="top-bar" class="top-bar" style="display:none">
+  <div class="top-bar-inner">
+    <span class="progreso-label" id="progreso-label">Pregunta 1 de 5</span>
+    <div class="progreso-bar"><div class="progreso-fill" id="progreso-fill" style="width:20%"></div></div>
+    <span class="timer" id="timer-display">5:00</span>
+  </div>
+</div>
+
+<!-- PREGUNTAS -->
+<div id="screen-preguntas" class="screen">
+  <div class="shell">
+    <div id="pregunta-container"></div>
+    <div class="nav-pregunta">
+      <button class="btn btn-primary" id="btn-siguiente" onclick="siguientePregunta()" disabled>Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTADOS -->
+<div id="screen-resultado" class="screen">
+  <div class="shell">
+    <div class="resultado-card">
+      <div class="resultado-puntaje" id="res-puntaje">—</div>
+      <div class="resultado-label" id="res-label"></div>
+      <div class="resultado-detalle" id="res-detalle"></div>
+      <div class="enviado-msg" id="enviado-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Formulario oculto para Netlify -->
+<form name="evaluacion-fisica-10" method="POST" netlify netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="evaluacion-fisica-10">
+  <input name="bot-field">
+  <input name="nombre"><input name="curso"><input name="puntaje">
+  <input name="tiempo_s"><input name="por_tiempo">
+  <input name="p1"><input name="p2"><input name="p3"><input name="p4"><input name="p5">
+</form>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════════════════
+
+// Número aleatorio entero en [a, b]
+function ri(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+// Número aleatorio decimal con d decimales en [a, b], paso step
+function rd(a, b, step) {
+  const steps = Math.floor((b - a) / step);
+  return parseFloat((a + ri(0, steps) * step).toFixed(10));
+}
+
+function r1(n) { return parseFloat(n.toFixed(1)); }
+function r2(n) { return parseFloat(n.toFixed(2)); }
+
+// Mezcla un array (Fisher-Yates) y devuelve {arr, oldIndexes}
+function shuffle(arr) {
+  const a = arr.slice();
+  const idx = arr.map((_,i)=>i);
+  for (let i = a.length-1; i > 0; i--) {
+    const j = ri(0, i);
+    [a[i], a[j]] = [a[j], a[i]];
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return { arr: a, oldIdx: idx };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GENERACIÓN DE PREGUNTAS CON VALORES ALEATORIOS
+// ═══════════════════════════════════════════════════════════════
+
+function generarPreguntas() {
+  const preguntas = [];
+
+  // ── B1: Tabla con dos tramos, identificar MRU vs MUA ─────────────────────
+  // Tramo A: MRU con velocidad vA m/s durante 4 intervalos de 1 s
+  // Tramo B: MUA con a m/s², v0B m/s durante 4 intervalos de 1 s
+  {
+    const vA   = rd(2.0, 5.0, 0.5);   // velocidad constante tramo A
+    const v0B  = rd(1.0, 2.5, 0.5);   // velocidad inicial tramo B
+    const aB   = rd(0.5, 2.0, 0.5);   // aceleración tramo B
+
+    // Posiciones tramo A (arranca en x=0, t=0)
+    const filasA = [];
+    for (let i = 0; i <= 4; i++) {
+      filasA.push({ t: i, x: r1(vA * i) });
+    }
+    // Posiciones tramo B (arranca desde donde terminó A)
+    const x0B = filasA[filasA.length-1].x;
+    const t0B = filasA[filasA.length-1].t;
+    const filasB = [];
+    for (let i = 1; i <= 4; i++) {
+      const dt = i;
+      filasB.push({ t: t0B + dt, x: r1(x0B + v0B*dt + 0.5*aB*dt*dt) });
+    }
+
+    // Construir filas de tabla marcando tramos
+    const filas = [
+      [filasA[0].t.toFixed(1), filasA[0].x.toFixed(1), '—'],
+      ...filasA.slice(1).map(f => [f.t.toFixed(1), f.x.toFixed(1), 'A']),
+      ...filasB.map(f => [f.t.toFixed(1), f.x.toFixed(1), 'B']),
+    ];
+
+    const correctaTexto = 'Tramo A: velocidad constante (MRU). Tramo B: aceleración constante (MUA).';
+    const opciones = [
+      { texto: correctaTexto, esCorrecta: true },
+      { texto: 'Tramo A: aceleración constante, porque las posiciones aumentan. Tramo B: velocidad constante.', esCorrecta: false },
+      { texto: 'Ambos tramos muestran aceleración, porque la posición siempre aumenta.', esCorrecta: false },
+      { texto: 'Tramo A: el animal va lento porque los valores de x son pequeños. Tramo B: va rápido. No hay diferencia cinemática real.', esCorrecta: false },
+    ];
+
+    const mezclado = shuffle(opciones);
+    const idxCorrecta = mezclado.arr.findIndex(o => o.esCorrecta);
+
+    preguntas.push({
+      nivel: 'Básico',
+      texto: `La siguiente tabla registra la posición de <em>Rapidus incertus</em> durante dos tramos de su desplazamiento. Observa los datos e identifica qué tipo de movimiento describe cada tramo.`,
+      tipo: 'tabla',
+      encabezados: ['t (s)', 'x (m)', 'Tramo'],
+      filas,
+      opciones: mezclado.arr.map(o => o.texto),
+      correcta: idxCorrecta,
+    });
+  }
+
+  // ── B2: Gráfica x-t con MRU y MUA, identificar cada curva ───────────────
+  {
+    const vMRU = rd(2.0, 5.0, 0.5);
+    const aMUA = rd(0.5, 1.5, 0.25);
+    // Duración de la gráfica: 8 s
+    const tMax = 8;
+    const xMax = r1(Math.max(vMRU * tMax, 0.5 * aMUA * tMax * tMax) * 1.1);
+
+    const opciones = [
+      { texto: 'La curva recta corresponde a MRU y la curva parabólica a MUA. Ambos organismos se alejan del punto de partida.', esCorrecta: true },
+      { texto: 'La curva parabólica muestra una velocidad constante pero creciente, no aceleración.', esCorrecta: false },
+      { texto: 'Ambas curvas representan MRU porque las dos se alejan del punto de partida de forma continua.', esCorrecta: false },
+      { texto: 'La curva recta indica aceleración porque su pendiente es constante y nunca cambia.', esCorrecta: false },
+    ];
+    const mezclado = shuffle(opciones);
+    const idxCorrecta = mezclado.arr.findIndex(o => o.esCorrecta);
+
+    preguntas.push({
+      nivel: 'Básico',
+      texto: `La gráfica muestra la posición en función del tiempo de dos organismos distintos. Pasa el cursor sobre la gráfica para leer coordenadas. ¿Cuál afirmación describe correctamente lo que muestra la gráfica?`,
+      tipo: 'grafica',
+      graficaTipo: 'xt_dos_curvas',
+      graficaParams: { vMRU, aMUA, tMax, xMax },
+      opciones: mezclado.arr.map(o => o.texto),
+      correcta: idxCorrecta,
+    });
+  }
+
+  // ── I1: Tabla con dos fases, identificar gráfica v-t correcta ────────────
+  {
+    const vFase1 = rd(2.0, 5.0, 0.5);   // MRU en fase 1
+    const tCambio = ri(3, 5);            // instante de cambio (s)
+    const aFase2  = rd(0.5, 2.0, 0.5);  // aceleración fase 2
+    const v0Fase2 = vFase1;              // continúa desde la misma velocidad
+    const tTotal  = tCambio + ri(3, 4);
+
+    const filas = [];
+    // Fase 1: MRU
+    for (let t = 0; t <= tCambio; t++) {
+      filas.push([String(t), r1(vFase1 * t).toFixed(1), t <= tCambio ? '1' : '2']);
+    }
+    // Fase 2: MUA desde x del cambio
+    const xCambio = vFase1 * tCambio;
+    for (let t = tCambio + 1; t <= tTotal; t++) {
+      const dt = t - tCambio;
+      filas.push([String(t), r1(xCambio + v0Fase2*dt + 0.5*aFase2*dt*dt).toFixed(1), '2']);
+    }
+    // Marcar separador en tabla
+    filas[tCambio].separador = true;
+
+    const correctaTexto = `Línea horizontal (v constante = ${vFase1} m/s) hasta t = ${tCambio} s, luego línea ascendente (v creciente por aceleración constante).`;
+    const opciones = [
+      { texto: correctaTexto, esCorrecta: true },
+      { texto: `Línea ascendente en todo el recorrido: el organismo siempre acelera desde t = 0.`, esCorrecta: false },
+      { texto: `Línea horizontal constante durante todo el recorrido: la velocidad nunca cambia.`, esCorrecta: false },
+      { texto: `Línea ascendente hasta t = ${tCambio} s, luego horizontal: primero acelera y luego mantiene velocidad constante.`, esCorrecta: false },
+    ];
+    const mezclado = shuffle(opciones);
+    const idxCorrecta = mezclado.arr.findIndex(o => o.esCorrecta);
+
+    preguntas.push({
+      nivel: 'Intermedio',
+      texto: `El siguiente registro corresponde a <em>Lentus progressus</em>, un segundo organismo hallado en la zona. El organismo cambia su tipo de movimiento a lo largo del recorrido. ¿Cuál descripción de la gráfica velocidad–tiempo (v–t) es correcta para su movimiento completo?`,
+      tipo: 'tabla',
+      encabezados: ['t (s)', 'x (m)', 'Fase'],
+      filas: filas.map(f => [f[0], f[1], f[2]]),
+      separadorEn: tCambio,
+      opciones: mezclado.arr.map(o => o.texto),
+      correcta: idxCorrecta,
+    });
+  }
+
+  // ── I2: Tabla con dos fases — calcular v en fase 1 (MRU) y a en fase 2 (MUA) ──
+  {
+    // Fase 1: MRU, Δt = 1 s, nF1 intervalos
+    // Fase 2: MUA parte desde v0F2 = vF1, Δt = 1 s, nF2 intervalos
+    // Δt = 1 s en ambas fases para simplificar el cálculo
+    const vF1  = rd(2.0, 5.0, 0.5);   // velocidad fase 1
+    const aF2  = rd(0.5, 2.0, 0.5);   // aceleración fase 2
+    const nF1  = ri(3, 4);             // huellas fase 1 (sin contar la inicial)
+    const nF2  = ri(3, 4);             // huellas fase 2
+
+    // Construir filas
+    const filas = [];
+    // Huella inicial
+    filas.push({ t: 0, x: r1(0), fase: '—' });
+    // Fase 1
+    for (let i = 1; i <= nF1; i++) {
+      filas.push({ t: i, x: r1(vF1 * i), fase: '1' });
+    }
+    // Fase 2: arranca desde donde termina la fase 1
+    const t0F2 = nF1;
+    const x0F2 = r1(vF1 * nF1);
+    for (let i = 1; i <= nF2; i++) {
+      const dt = i;
+      filas.push({ t: t0F2 + dt, x: r1(x0F2 + vF1*dt + 0.5*aF2*dt*dt), fase: '2' });
+    }
+
+    // Distractores numéricos
+    // dist_v: Δx de un intervalo de fase 1 (correcto, pero que no confundan con a)
+    // dist_a_mal: Δx del primer intervalo de fase 2 / t (confunde Δx con a)
+    const dxF2_1 = r1(x0F2 + vF1*1 + 0.5*aF2*1 - x0F2);       // Δx primer intervalo f2
+    const dxF2_2 = r1(x0F2 + vF1*2 + 0.5*aF2*4 - (x0F2 + vF1*1 + 0.5*aF2*1)); // Δx segundo
+    const aMal   = r1(dxF2_1);       // confunde Δx con a
+    const aError = r1(dxF2_2 - dxF2_1); // correcto: diferencia de Δx consecutivos = a·Δt² con Δt=1
+
+    const filasTabla = filas.map(f => [String(f.t), f.x.toFixed(1), f.fase]);
+
+    const opciones = [
+      {
+        texto: `Fase 1: MRU con v = ${vF1.toFixed(1)} m/s. Fase 2: MUA con a = ${aF2.toFixed(1)} m/s². La diferencia entre distancias consecutivas en la fase 2 es constante e igual a la aceleración.`,
+        esCorrecta: true
+      },
+      {
+        texto: `Fase 1: MUA porque las posiciones aumentan progresivamente. Fase 2: MRU porque el organismo ya alcanzó su velocidad máxima.`,
+        esCorrecta: false
+      },
+      {
+        texto: `Fase 1: MRU con v = ${vF1.toFixed(1)} m/s. Fase 2: MUA con a = ${aMal.toFixed(1)} m/s², tomando directamente la distancia del primer intervalo como aceleración.`,
+        esCorrecta: false
+      },
+      {
+        texto: `Ambas fases corresponden a MRU: en la fase 1 la velocidad es ${vF1.toFixed(1)} m/s y en la fase 2 aumenta, pero sigue siendo constante en cada intervalo.`,
+        esCorrecta: false
+      },
+    ];
+    const mezclado = shuffle(opciones);
+    const idxCorrecta = mezclado.arr.findIndex(o => o.esCorrecta);
+
+    preguntas.push({
+      nivel: 'Intermedio',
+      texto: `La siguiente tabla registra la posición de un segundo organismo, <em>Duplex motus</em>, cuyo movimiento cambia claramente entre la fase 1 y la fase 2. Calcula la velocidad en la fase 1 y la aceleración en la fase 2, e identifica qué modelo cinemático describe cada fase.`,
+      tipo: 'tabla',
+      encabezados: ['t (s)', 'x (m)', 'Fase'],
+      filas: filasTabla,
+      separadorEn: nF1,
+      opciones: mezclado.arr.map(o => o.texto),
+      correcta: idxCorrecta,
+    });
+  }
+
+  // ── A1: Proyección — ¿en qué instante el animal acelerado supera al de v constante? ──
+  {
+    // Posición MRU: x1 = v1 * t
+    // Posición MUA: x2 = 0.5 * a * t²  (parte del reposo)
+    // Igualdad: v1*t = 0.5*a*t² → t = 2*v1/a
+    // Para que t tenga 1 decimal limpio: elegir v1 y a tal que 2*v1/a sea entero o .5
+    // Estrategia: elegir a en {1.0,1.2,1.4,1.6,1.8,2.0}, t_cruce en {4,5,6,7,8,9,10}
+    // → v1 = a * t_cruce / 2
+
+    const aCandidatos = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0];
+    const tCruceCandidatos = [4, 5, 6, 7, 8, 9, 10];
+    const aElegida = aCandidatos[ri(0, aCandidatos.length-1)];
+    const tCruceElegido = tCruceCandidatos[ri(0, tCruceCandidatos.length-1)];
+    const v1 = r1(aElegida * tCruceElegido / 2);
+    const xCruce = r1(v1 * tCruceElegido);
+
+    // Distractor 1: instante en que velocidades se igualan (v1 = a*t → t = v1/a = tCruce/2)
+    const tVelocIgual = r1(v1 / aElegida);
+    // Distractor 2: usar a/2 en lugar de a (error de factor 2 en ecuación)
+    const tError = r1(2 * v1 / (aElegida / 2));
+    // Distractor 3: usar v1 directamente como tiempo
+    const tDist3 = v1;
+
+    const opciones = [
+      { texto: `t = ${tCruceElegido.toFixed(1)} s, cuando ambos han recorrido ${xCruce.toFixed(1)} m.`, esCorrecta: true },
+      { texto: `t = ${tVelocIgual.toFixed(1)} s, que es el instante en que sus velocidades se igualan.`, esCorrecta: false },
+      { texto: `t = ${tError.toFixed(1)} s, resultado de no dividir correctamente la aceleración en la ecuación cinemática.`, esCorrecta: false },
+      { texto: `t = ${tDist3.toFixed(1)} s, tomando directamente el valor numérico de la velocidad de <em>Cursor secundus</em>.`, esCorrecta: false },
+    ];
+    const mezclado = shuffle(opciones);
+    const idxCorrecta = mezclado.arr.findIndex(o => o.esCorrecta);
+
+    preguntas.push({
+      nivel: 'Avanzado',
+      texto: `Dos organismos parten del mismo punto al mismo tiempo. <em>Cursor secundus</em> se mueve con velocidad constante de ${v1.toFixed(1)} m/s. <em>Gradiens novus</em> parte del reposo con aceleración constante de ${aElegida.toFixed(1)} m/s². ¿En qué instante <em>Gradiens novus</em> supera en posición a <em>Cursor secundus</em> por primera vez?`,
+      tipo: 'texto',
+      opciones: mezclado.arr.map(o => o.texto),
+      correcta: idxCorrecta,
+    });
+  }
+
+  return preguntas;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════════════
+const PREGUNTAS = generarPreguntas();
+let respuestasEstudiante = [null, null, null, null, null];
+let preguntaActual = 0;
+let nombreEstudiante = '';
+let cursoEstudiante  = '';
+let tiempoInicio     = null;
+let intervaloTimer   = null;
+let segundosRestantes = 300;
+
+// ═══════════════════════════════════════════════════════════════
+// FORMULARIO DE INICIO
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('inp-nombre').addEventListener('input', validarForm);
+document.getElementById('inp-curso').addEventListener('change', validarForm);
+function validarForm() {
+  const n = document.getElementById('inp-nombre').value.trim();
+  const c = document.getElementById('inp-curso').value;
+  document.getElementById('btn-iniciar').disabled = !(n.length > 2 && c);
+}
+
+function iniciarEvaluacion() {
+  nombreEstudiante = document.getElementById('inp-nombre').value.trim();
+  cursoEstudiante  = document.getElementById('inp-curso').value;
+  tiempoInicio     = new Date();
+  mostrarPantalla('screen-preguntas');
+  document.getElementById('top-bar').style.display = 'block';
+  renderPregunta(0);
+  iniciarTimer();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════════════
+function iniciarTimer() {
+  segundosRestantes = 300;
+  actualizarTimer();
+  intervaloTimer = setInterval(() => {
+    segundosRestantes--;
+    actualizarTimer();
+    if (segundosRestantes <= 0) { clearInterval(intervaloTimer); terminarEvaluacion(true); }
+  }, 1000);
+}
+function actualizarTimer() {
+  const m = Math.floor(segundosRestantes / 60);
+  const s = segundosRestantes % 60;
+  const el = document.getElementById('timer-display');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.classList.toggle('urgente', segundosRestantes <= 60);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER DE PREGUNTA
+// ═══════════════════════════════════════════════════════════════
+function renderPregunta(idx) {
+  preguntaActual = idx;
+  const p = PREGUNTAS[idx];
+  const container = document.getElementById('pregunta-container');
+
+  document.getElementById('progreso-label').textContent = `Pregunta ${idx+1} de 5`;
+  document.getElementById('progreso-fill').style.width = `${(idx+1)*20}%`;
+
+  const btnSig = document.getElementById('btn-siguiente');
+  btnSig.disabled = respuestasEstudiante[idx] === null;
+  btnSig.textContent = idx < 4 ? 'Siguiente →' : 'Ver resultados';
+
+  // Tabla HTML
+  let htmlTabla = '';
+  if (p.encabezados) {
+    const filas = p.filas.map((f, i) => {
+      const esSep = (p.separadorEn !== undefined && i === p.separadorEn);
+      return `<tr${esSep ? ' class="separador"' : ''}>${f.map(c=>`<td>${c}</td>`).join('')}</tr>`;
+    }).join('');
+    htmlTabla = `<table class="tabla-datos">
+      <thead><tr>${p.encabezados.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${filas}</tbody>
+    </table>`;
+  }
+
+  // Opciones
+  const letras = ['A','B','C','D'];
+  const htmlOpciones = p.opciones.map((op, i) => `
+    <div class="opcion${respuestasEstudiante[idx]===i?' seleccionada':''}" onclick="seleccionarOpcion(${i})">
+      <span class="opcion-letra">${letras[i]}</span>
+      <span>${op}</span>
+    </div>`).join('');
+
+  const necesitaGrafica = p.tipo === 'grafica';
+
+  container.innerHTML = `
+    <div class="pregunta-card">
+      <div class="pregunta-nivel">${p.nivel}</div>
+      <div class="pregunta-numero">Pregunta ${idx+1} de 5</div>
+      <div class="pregunta-texto">${p.texto}</div>
+      ${htmlTabla}
+      ${necesitaGrafica ? `<div class="grafica-wrap"><canvas id="canvas-grafica" height="260"></canvas><div class="grafica-tooltip" id="tooltip"></div></div><p class="nota-grafica">Pasa el cursor sobre la gráfica para leer coordenadas exactas.</p>` : ''}
+      <div class="opciones">${htmlOpciones}</div>
+    </div>`;
+
+  if (necesitaGrafica) setTimeout(() => dibujarGrafica(p.graficaTipo, p.graficaParams), 60);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GRÁFICAS INTERACTIVAS
+// ═══════════════════════════════════════════════════════════════
+function dibujarGrafica(tipo, params) {
+  const canvas  = document.getElementById('canvas-grafica');
+  const tooltip = document.getElementById('tooltip');
+  if (!canvas) return;
+
+  const W = canvas.offsetWidth || 680;
+  const H = 260;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 30, right: 30, bottom: 50, left: 60 };
+  const gW  = W - pad.left - pad.right;
+  const gH  = H - pad.top  - pad.bottom;
+
+  let curvas, etX, etY, xMin, xMax, yMin, yMax;
+
+  if (tipo === 'xt_dos_curvas') {
+    const { vMRU, aMUA, tMax } = params;
+    etX = 't (s)'; etY = 'x (m)';
+    xMin = 0; xMax = tMax;
+    yMax = Math.ceil(Math.max(vMRU*tMax, 0.5*aMUA*tMax*tMax) * 1.15);
+    yMin = 0;
+    curvas = [
+      {
+        label: 'Organismo A',
+        color: '#1B5E20',
+        pts: Array.from({length: tMax*10+1}, (_,i) => { const t=i/10; return {x:t, y:vMRU*t}; })
+      },
+      {
+        label: 'Organismo B',
+        color: '#00897B',
+        pts: Array.from({length: tMax*10+1}, (_,i) => { const t=i/10; return {x:t, y:0.5*aMUA*t*t}; })
+      }
+    ];
+  }
+
+  function toC(xv, yv) {
+    return {
+      cx: pad.left + ((xv-xMin)/(xMax-xMin)) * gW,
+      cy: pad.top  + (1 - (yv-yMin)/(yMax-yMin)) * gH
+    };
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#FAFAFA';
+    ctx.fillRect(0,0,W,H);
+
+    // Cuadrícula
+    const nX = Math.min(8, xMax);
+    const nY = 6;
+    ctx.strokeStyle = '#E0E0E0'; ctx.lineWidth = 1;
+    for (let i=0; i<=nX; i++) {
+      const xv = xMin + i*(xMax-xMin)/nX;
+      const {cx} = toC(xv, yMin);
+      ctx.beginPath(); ctx.moveTo(cx, pad.top); ctx.lineTo(cx, pad.top+gH); ctx.stroke();
+    }
+    for (let i=0; i<=nY; i++) {
+      const yv = yMin + i*(yMax-yMin)/nY;
+      const {cy} = toC(xMin, yv);
+      ctx.beginPath(); ctx.moveTo(pad.left, cy); ctx.lineTo(pad.left+gW, cy); ctx.stroke();
+    }
+
+    // Ejes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+gH); ctx.lineTo(pad.left+gW, pad.top+gH);
+    ctx.stroke();
+
+    // Etiquetas
+    ctx.fillStyle = '#555';
+    ctx.font = '11px IBM Plex Mono, monospace';
+    ctx.textAlign = 'center';
+    for (let i=0; i<=nX; i++) {
+      const xv = xMin + i*(xMax-xMin)/nX;
+      const {cx,cy} = toC(xv, yMin);
+      ctx.fillText(parseFloat(xv.toFixed(1)), cx, cy+18);
+    }
+    ctx.textAlign = 'right';
+    for (let i=0; i<=nY; i++) {
+      const yv = yMin + i*(yMax-yMin)/nY;
+      const {cy} = toC(xMin, yv);
+      ctx.fillText(parseFloat(yv.toFixed(1)), pad.left-8, cy+4);
+    }
+
+    ctx.textAlign = 'center'; ctx.fillStyle = '#333';
+    ctx.font = '12px IBM Plex Sans, sans-serif';
+    ctx.fillText(etX, pad.left + gW/2, H-8);
+    ctx.save();
+    ctx.translate(14, pad.top + gH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText(etY, 0, 0);
+    ctx.restore();
+
+    // Curvas
+    curvas.forEach(c => {
+      ctx.strokeStyle = c.color; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      c.pts.forEach((pt,i) => {
+        const {cx,cy} = toC(pt.x, pt.y);
+        i===0 ? ctx.moveTo(cx,cy) : ctx.lineTo(cx,cy);
+      });
+      ctx.stroke();
+    });
+
+    // Leyenda (solo si hay más de una curva)
+    if (curvas.length > 1) {
+      let ly = pad.top + 12;
+      curvas.forEach(c => {
+        ctx.fillStyle = c.color;
+        ctx.fillRect(pad.left+8, ly-8, 20, 3);
+        ctx.fillStyle = '#333';
+        ctx.font = '11px IBM Plex Sans, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(c.label, pad.left+34, ly);
+        ly += 18;
+      });
+    }
+  }
+
+  draw();
+
+  // Tooltip
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    if (mx < pad.left || mx > pad.left+gW || my < pad.top || my > pad.top+gH) {
+      tooltip.style.display = 'none'; return;
+    }
+    const xv = xMin + ((mx-pad.left)/gW)*(xMax-xMin);
+    const yv = yMin + (1-(my-pad.top)/gH)*(yMax-yMin);
+    tooltip.textContent = `${etX.split(' ')[0]} = ${xv.toFixed(2)}  |  ${etY.split(' ')[0]} = ${yv.toFixed(2)}`;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (mx+12)+'px';
+    tooltip.style.top  = (my-28)+'px';
+  };
+  canvas.onmouseleave = () => { tooltip.style.display = 'none'; };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INTERACCIÓN
+// ═══════════════════════════════════════════════════════════════
+function seleccionarOpcion(idx) {
+  respuestasEstudiante[preguntaActual] = idx;
+  document.querySelectorAll('.opcion').forEach((el,i) => el.classList.toggle('seleccionada', i===idx));
+  document.getElementById('btn-siguiente').disabled = false;
+}
+
+function siguientePregunta() {
+  if (preguntaActual < 4) renderPregunta(preguntaActual + 1);
+  else { clearInterval(intervaloTimer); terminarEvaluacion(false); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESULTADOS
+// ═══════════════════════════════════════════════════════════════
+function terminarEvaluacion(porTiempo) {
+  const segundosUsados = Math.round((new Date() - tiempoInicio)/1000);
+  const m = Math.floor(segundosUsados/60);
+  const s = segundosUsados%60;
+
+  let puntaje = 0;
+  PREGUNTAS.forEach((p,i) => { if (respuestasEstudiante[i]===p.correcta) puntaje++; });
+
+  document.getElementById('top-bar').style.display = 'none';
+  mostrarPantalla('screen-resultado');
+
+  document.getElementById('res-puntaje').textContent = `${puntaje}/5`;
+  document.getElementById('res-label').textContent =
+    `${puntaje} de 5 preguntas correctas · Tiempo: ${m}:${s.toString().padStart(2,'0')}${porTiempo?' · Tiempo agotado':''}`;
+
+  const letras = ['A','B','C','D'];
+  const niveles = ['BÁS','BÁS','INT','INT','AVZ'];
+  document.getElementById('res-detalle').innerHTML = PREGUNTAS.map((p,i) => {
+    const ok = respuestasEstudiante[i] === p.correcta;
+    const letra = respuestasEstudiante[i] !== null ? letras[respuestasEstudiante[i]] : '—';
+    return `<div class="det-item ${ok?'correcta':'incorrecta'}">
+      <span class="det-num">${ok?'✓':'✗'}</span>
+      <div>P${i+1} · ${letra}</div>
+      <div class="det-nivel">${niveles[i]}</div>
+    </div>`;
+  }).join('');
+
+  enviarNetlify(puntaje, segundosUsados, porTiempo);
+}
+
+function enviarNetlify(puntaje, segundosUsados, porTiempo) {
+  const letras = ['A','B','C','D'];
+  const datos = {
+    'form-name': 'evaluacion-fisica-10',
+    'nombre': nombreEstudiante,
+    'curso': cursoEstudiante,
+    'puntaje': String(puntaje),
+    'tiempo_s': String(segundosUsados),
+    'por_tiempo': porTiempo ? 'sí' : 'no',
+    'p1': respuestasEstudiante[0]!==null ? letras[respuestasEstudiante[0]] : '—',
+    'p2': respuestasEstudiante[1]!==null ? letras[respuestasEstudiante[1]] : '—',
+    'p3': respuestasEstudiante[2]!==null ? letras[respuestasEstudiante[2]] : '—',
+    'p4': respuestasEstudiante[3]!==null ? letras[respuestasEstudiante[3]] : '—',
+    'p5': respuestasEstudiante[4]!==null ? letras[respuestasEstudiante[4]] : '—',
+  };
+  fetch('/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams(datos).toString()
+  })
+  .then(() => { document.getElementById('enviado-msg').textContent = '✓ Resultado enviado al registro del docente.'; })
+  .catch(() => { document.getElementById('enviado-msg').textContent = '⚠ No se pudo enviar el resultado. Muestra esta pantalla al docente.'; });
+}
+
+function mostrarPantalla(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
